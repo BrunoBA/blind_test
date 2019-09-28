@@ -6,9 +6,12 @@ RUN apk update \
   && apk del alpine-sdk \
   && rm -rf /tmp/* /var/cache/apk/* *.tar.gz ~/.npm \
   && npm cache clean --force \
+  && npm install -g @vue/cli \
   && yarn cache clean \
   && sed -i -e "s/bin\/ash/bin\/sh/" /etc/passwd
 
-WORKDIR /app/home
+WORKDIR /app/home/blind_test
+
+RUN npm install
 
 EXPOSE 3000
