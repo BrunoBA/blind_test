@@ -1,7 +1,12 @@
 <template>
   <div class="m-4">
     <a :href="url">
-      <button class="btn btn-primary">Login</button>
+      <button class="btn btn-success">
+        <b>
+          Login
+        </b>
+        <i class="fa fa-spotify text-white" aria-hidden="true"></i>
+      </button>
     </a>
   </div>
 </template>

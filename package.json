@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "nodemon node app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -15,5 +16,15 @@
   "bugs": {
     "url": "https://github.com/BrunoBA/blind_test/issues"
   },
-  "homepage": "https://github.com/BrunoBA/blind_test#readme"
+  "homepage": "https://github.com/BrunoBA/blind_test#readme",
+  "dependencies": {
+    "axios": "^0.19.0",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "moment": "^2.24.0",
+    "spotify-web-api-node": "^4.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^1.19.2"
+  }
 }

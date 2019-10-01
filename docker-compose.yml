@@ -1,13 +1,30 @@
 version: '2'
+networks:
+  api:
+    driver: "bridge"
 services: 
   frontend:
     build:
       context: .
-      dockerfile: ./docker/nodejs/Dockerfile
+      dockerfile: ./docker/frontend/Dockerfile
     container_name: frontend_container
     ports:
       - 8080:8080
       - 8000:8000
     volumes: 
+      - .:/app/home/blind_test
+    tty: true
+    networks: 
+      - api
+  backend:
+    build:
+      context: .
+      dockerfile: ./docker/backend/Dockerfile
+    container_name: backend_container
+    ports:
+      - 3000:3000
+    volumes: 
       - .:/app/home
     tty: true
+    networks: 
+      - api

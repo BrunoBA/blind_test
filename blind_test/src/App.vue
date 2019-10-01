@@ -1,8 +1,8 @@
 <template>
   <div id="app">
     <div id="nav">
-      <router-link to="/">Home</router-link>|
-      <router-link to="/callback"></router-link>
+      <router-link to="/login"></router-link>|
+      <router-link to="/playlists"></router-link>
     </div>
     <div class="container-fluid">
       <router-view />
@@ -19,5 +19,6 @@
   color: #2c3e50;
   margin-top: 60px;
 }
-@import "~bootstrap/dist/css/bootstrap.css";
+@import "~font-awesome/css/font-awesome.min.css";
+@import "~bootstrap/dist/css/bootstrap.min.css";
 </style>
