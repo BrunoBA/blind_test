@@ -27,6 +27,17 @@ function getNumbersBetweenInterval(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
+function changePosition(arr, old_index, new_index) {
+  if (new_index >= arr.length) {
+      var k = new_index - arr.length + 1;
+      while (k--) {
+          arr.push(undefined);
+      }
+  }
+  arr.splice(new_index, 0, arr.splice(old_index, 1)[0]);
+  return arr; // for testing
+};
+
 function formatArtists(arrayOfArtists) {
 
   if (arrayOfArtists.length == 1) {
@@ -77,6 +88,9 @@ function addOptions(CORRECTLY_ID, tracks) {
       arrayOfSongs.push(randomOption);
     }
   }
+
+  let randomPosition = getNumbersBetweenInterval(0, 4);
+  arrayOfSongs = changePosition(arrayOfSongs, 0, randomPosition)
 
   return arrayOfSongs;
 }

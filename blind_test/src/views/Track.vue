@@ -1,23 +1,36 @@
 <template>
   <div class="container">
-    <div class="row">
+    <div class="row my-3">
       <div class="col-12 text-center text-white">
         <b>{{currentStep}} / 10</b>
       </div>
     </div>
     <div class="row">
       <div class="col-12">
-        <button @click="nextSong()" class="btn btn-success">
-          <b>Next Song {{fixedTimeout}}</b>
-          <i class="ml-1 fa fa-forward" aria-hidden="true"></i>
-        </button>
+        <div class="progress my-3" style="height: 20px;">
+          <div
+            class="progress-bar progress-bar-striped progress-bar-animated bg-success"
+            role="progressbar"
+            :style="{width: `${progressBar}%`}"
+            aria-valuenow="25"
+            aria-valuemin="0"
+            aria-valuemax="100"
+          >
+          <b v-if="readyToBet">Bet</b>
+            
+          </div>
+        </div>
       </div>
     </div>
     <div class="row d-flex justify-content-center">
-      <div v-for="(item, index) in currentSong.options" :key="index" class="col-8">
-        <button @click="takeTheTime()" class="btn btn-light btn-block mt-1 d-flex justify-content-between">
+      <div v-for="(option, index) in currentSong.options" :key="index" class="col-8">
+        <button
+          :disabled="progressBar != 100"
+          @click="nextSong(option)"
+          class="btn btn-light btn-block mt-1 d-flex justify-content-between"
+        >
           <i class="fa fa-music" aria-hidden="true"></i>
-          <b>{{item.title}}</b>
+          <b>{{option.title}}</b>
           <span></span>
         </button>
       </div>
@@ -39,20 +52,28 @@ import {
   getUniqueRandomIndex
 } from "../models/Random";
 
-const LISTEN_LIMIT_SECONDS = 5;
+const LISTEN_LIMIT_SECONDS = 2;
 const MIN_SECONDS = 0;
 const MAX_SECONDS = 29 - LISTEN_LIMIT_SECONDS;
-const VOLUME = 0.01;
+const VOLUME = 0.1;
+
+const ONE_SECOND = 1000;
 
 export default {
   data() {
     return {
       timer: LISTEN_LIMIT_SECONDS,
-      timeToSelect: 0
+      timeToSelect: 0,
+      incrementTime: 0,
+      functionToDecrement: null,
+      functionToIncrement: null,
+      timerOver: false,
+      incrementTimeOver: false,
     };
   },
   mounted() {
-    this.timeout();
+    this.functionToDecrement = this.timeout();
+    this.functionToIncrement = this.incrmentTimer();
 
     store.commit("RESET_STEP");
     store.dispatch("GET_TRACKS", router.currentRoute.params.id).then(res => {
@@ -77,6 +98,17 @@ export default {
       return store.state.tracks[
         store.state.trackOrder[store.state.currentSong]
       ];
+    },
+    progressBar() {
+      let percentage = (this.incrementTime / LISTEN_LIMIT_SECONDS) * 100;
+
+      if (percentage >= 100) {
+        percentage = 100;
+      }
+      return percentage;
+    },
+    readyToBet() {
+      return this.timerOver && this.incrementTimeOver
     }
   },
   methods: {
@@ -103,11 +135,36 @@ export default {
         });
     },
     timeout() {
-      setInterval(() => {
+      return setInterval(() => {
         this.timer = this.timer - 1;
-      }, 1000);
+        console.log(`Timer.. ${this.timer}`);
+
+        if (this.timer < 0) {
+          this.timerOver == true
+          console.log("Clear the timeout");
+          clearInterval(this.functionToDecrement);
+        }
+      }, ONE_SECOND);
     },
-    nextSong() {
+    incrmentTimer() {
+      return setInterval(() => {
+        this.incrementTime = this.incrementTime + 1;
+        console.log(`IncrementTime.. ${this.incrementTime}`);
+
+        if (this.incrementTime > LISTEN_LIMIT_SECONDS) {
+          this.incrementTimeOver = true
+          console.log("Clear the timeout");
+          clearInterval(this.functionToIncrement);
+        }
+      }, ONE_SECOND);
+    },
+    nextSong(option) {
+      this.incrementTime = 0;
+      this.timer = LISTEN_LIMIT_SECONDS;
+
+      this.functionToDecrement = this.timeout();
+      this.functionToIncrement = this.incrmentTimer();
+
       store.commit("INCREMENT_CURRENT_SONG");
       let RANDOM_INDEX = store.state.trackOrder[store.state.currentSong];
       this.loadAudio(store.state.tracks[RANDOM_INDEX].track);

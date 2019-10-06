@@ -42,6 +42,7 @@ export default new Vuex.Store({
       state.tracks = tracks
     },
     INSERT_ORDER_OF_RANDOM_SONGS(state, trackOrder) {
+      state.trackOrder = []
       state.trackOrder = trackOrder
     },
     INCREMENT_CURRENT_SONG (state) {
