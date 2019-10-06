@@ -13,7 +13,9 @@ export default new Vuex.Store({
     redirect: "http://localhost:8080/login/",
     authToken: null,
     playlists: [],
-    tracks: []
+    tracks: [],
+    trackOrder: [],
+    currentSong: 0
   },
   getters: {
     redirectionUrl: state => 'https://accounts.spotify.com/authorize' +
@@ -21,7 +23,7 @@ export default new Vuex.Store({
       '&client_id=' + state.clientId +
       (state.scopes ? '&scope=' + encodeURIComponent(state.scopes) : '') +
       '&redirect_uri=' + encodeURIComponent(state.redirect),
-      authToken: () => {
+    authToken: () => {
       return localStorage.getItem('authToken')
     }
   },
@@ -38,6 +40,15 @@ export default new Vuex.Store({
     },
     SET_TRACKS(state, tracks) {
       state.tracks = tracks
+    },
+    INSERT_ORDER_OF_RANDOM_SONGS(state, trackOrder) {
+      state.trackOrder = trackOrder
+    },
+    INCREMENT_CURRENT_SONG (state) {
+      state.currentSong++
+    },
+    RESET_STEP (state) {
+      state.currentSong = 0
     }
   },
   actions: {
