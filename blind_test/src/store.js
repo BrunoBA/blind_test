@@ -90,6 +90,13 @@ export default new Vuex.Store({
           reject(r)
         });
       })
+    },
+    LOAD_CURRENT_SONG({ commit }) {      
+
+      return new Promise((resolve, reject) => {
+        
+        resolve(r)
+      })
     }
   }
 })

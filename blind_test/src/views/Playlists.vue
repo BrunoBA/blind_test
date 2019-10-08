@@ -19,15 +19,11 @@
           <tr v-for="item in playlists" :key="item.id">
             <td>
               <router-link :to="`/track/${item.id}`">
-                <img :src="item.image.url" class="figure-img img-fluid rounded max-size">
+                <img :src="item.image.url" class="figure-img img-fluid rounded max-size" />
               </router-link>
             </td>
-            <td class="text-left">
-              {{ item.name }}
-            </td>
-            <td>
-              {{ item.tracks.total }}
-            </td>
+            <td class="text-left">{{ item.name }}</td>
+            <td>{{ item.tracks.total }}</td>
           </tr>
         </tbody>
       </table>
@@ -39,13 +35,9 @@ import store from "../store";
 
 export default {
   created() {
+    console.clear()
     if (store.state.playlists.length == 0) {
-      store
-        .dispatch("GET_PLAYLISTS")
-        .then(res => {
-          console.log(res.data)
-          console.log(store.state.playlists.length)
-        });
+      store.dispatch("GET_PLAYLISTS");
     }
   },
   data() {

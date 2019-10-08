@@ -2,7 +2,7 @@
   <div class="container">
     <div class="row my-3">
       <div class="col-12 text-center text-white">
-        <b>{{currentStep}} / 10</b>
+        <b>{{currentStep}} / {{quantifyOfSongs}}</b>
       </div>
     </div>
     <div class="row">
@@ -16,8 +16,7 @@
             aria-valuemin="0"
             aria-valuemax="100"
           >
-          <b v-if="readyToBet">Bet</b>
-            
+            <b v-if="readyToBet">Bet</b>
           </div>
         </div>
       </div>
@@ -68,7 +67,7 @@ export default {
       functionToDecrement: null,
       functionToIncrement: null,
       timerOver: false,
-      incrementTimeOver: false,
+      incrementTimeOver: false
     };
   },
   mounted() {
@@ -79,11 +78,10 @@ export default {
     store.dispatch("GET_TRACKS", router.currentRoute.params.id).then(res => {
       store.commit(
         "INSERT_ORDER_OF_RANDOM_SONGS",
-        getUniqueRandomIndex(res.data, 10)
+        getUniqueRandomIndex(res.data, res.data.length - 1)
       );
-
       let RANDOM_INDEX = store.state.trackOrder[store.state.currentSong];
-      this.loadAudio(res.data[RANDOM_INDEX].track);
+      this.loadAudio(store.state.tracks[RANDOM_INDEX].track);
     });
   },
   computed: {
@@ -99,6 +97,9 @@ export default {
         store.state.trackOrder[store.state.currentSong]
       ];
     },
+    quantifyOfSongs() {
+      return store.state.tracks.length;
+    },
     progressBar() {
       let percentage = (this.incrementTime / LISTEN_LIMIT_SECONDS) * 100;
 
@@ -108,8 +109,11 @@ export default {
       return percentage;
     },
     readyToBet() {
-      return this.timerOver && this.incrementTimeOver
+      return this.timerOver && this.incrementTimeOver;
     }
+  },
+  created() {
+    console.clear();
   },
   methods: {
     loadAudio(audio) {
@@ -118,30 +122,22 @@ export default {
       this.track.volume = VOLUME;
       let currentTime = getNumbersBetweenInterval(MIN_SECONDS, MAX_SECONDS);
       this.track.currentTime = currentTime;
-      this.track
-        .play()
-        .then(() => {
-          console.log(
-            `"${audio.name}" - between ${currentTime} - ${currentTime +
-              LISTEN_LIMIT_SECONDS}!`
-          );
-          setTimeout(() => {
-            this.track.pause();
-          }, LISTEN_LIMIT_SECONDS * 1000);
-        })
-        .catch(() => {
-          // this.track.pause();
-          console.log(`Error to load (${audio.name})`);
-        });
+      this.track.play().then(() => {
+        console.log(
+          `"${audio.name}" - between ${currentTime} - ${currentTime +
+            LISTEN_LIMIT_SECONDS}!`
+        );
+        setTimeout(() => {
+          this.track.pause();
+        }, LISTEN_LIMIT_SECONDS * 1000);
+      });
     },
     timeout() {
       return setInterval(() => {
         this.timer = this.timer - 1;
-        console.log(`Timer.. ${this.timer}`);
 
         if (this.timer < 0) {
-          this.timerOver == true
-          console.log("Clear the timeout");
+          this.timerOver == true;
           clearInterval(this.functionToDecrement);
         }
       }, ONE_SECOND);
@@ -149,11 +145,9 @@ export default {
     incrmentTimer() {
       return setInterval(() => {
         this.incrementTime = this.incrementTime + 1;
-        console.log(`IncrementTime.. ${this.incrementTime}`);
 
         if (this.incrementTime > LISTEN_LIMIT_SECONDS) {
-          this.incrementTimeOver = true
-          console.log("Clear the timeout");
+          this.incrementTimeOver = true;
           clearInterval(this.functionToIncrement);
         }
       }, ONE_SECOND);
