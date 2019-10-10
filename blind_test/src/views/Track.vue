@@ -51,12 +51,13 @@ import {
   getUniqueRandomIndex
 } from "../models/Random";
 
-const LISTEN_LIMIT_SECONDS = 2;
-const MIN_SECONDS = 0;
-const MAX_SECONDS = 29 - LISTEN_LIMIT_SECONDS;
-const VOLUME = 0.1;
-
-const ONE_SECOND = 1000;
+import { 
+  LISTEN_LIMIT_SECONDS,
+  MIN_SECONDS,
+  MAX_SECONDS,
+  VOLUME,
+  ONE_SECOND
+} from "../models/Constants";
 
 export default {
   data() {
@@ -82,6 +83,7 @@ export default {
       );
       let RANDOM_INDEX = store.state.trackOrder[store.state.currentSong];
       this.loadAudio(store.state.tracks[RANDOM_INDEX].track);
+      store.dispatch("PLAY_CURRENT_SONG");
     });
   },
   computed: {

@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import axios from "axios";
+import Song from "./models/Song";
 
 Vue.use(Vuex)
 
@@ -91,12 +92,20 @@ export default new Vuex.Store({
         });
       })
     },
-    LOAD_CURRENT_SONG({ commit }) {      
-
-      return new Promise((resolve, reject) => {
-        
-        resolve(r)
-      })
+    PLAY_CURRENT_SONG({ commit }) {
+      let currentTime = getNumbersBetweenInterval(MIN_SECONDS, MAX_SECONDS);
+      this.track = new Song(audio.preview_url);
+      this.track.volume = VOLUME;
+      this.track.currentTime = currentTime;
+      this.track.play().then(() => {
+        console.log(
+          `"${audio.name}" - between ${currentTime} - ${currentTime +
+            LISTEN_LIMIT_SECONDS}!`
+        );
+        setTimeout(() => {
+          this.track.pause();
+        }, LISTEN_LIMIT_SECONDS * 1000);
+      });
     }
   }
 })
