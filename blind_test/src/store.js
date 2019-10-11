@@ -2,6 +2,8 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import axios from "axios";
 import Song from "./models/Song";
+import { getNumbersBetweenInterval, getUniqueRandomIndex } from "./models/Random";
+import { MIN_SECONDS, MAX_SECONDS } from "./models/Constants";
 
 Vue.use(Vuex)
 
@@ -16,7 +18,7 @@ export default new Vuex.Store({
     playlists: [],
     tracks: [],
     trackOrder: [],
-    currentSong: 0
+    currentStep: 0
   },
   getters: {
     redirectionUrl: state => 'https://accounts.spotify.com/authorize' +
@@ -26,6 +28,12 @@ export default new Vuex.Store({
       '&redirect_uri=' + encodeURIComponent(state.redirect),
     authToken: () => {
       return localStorage.getItem('authToken')
+    },
+    getCurrentSong: state => {
+      return state.tracks[state.trackOrder[state.currentStep]]
+    },
+    totalOfSongs: state => {
+      return state.tracks.length
     }
   },
   mutations: {
@@ -43,14 +51,15 @@ export default new Vuex.Store({
       state.tracks = tracks
     },
     INSERT_ORDER_OF_RANDOM_SONGS(state, trackOrder) {
-      state.trackOrder = []
+      console.log("TrackOrder: ")
+      console.log(trackOrder)
       state.trackOrder = trackOrder
     },
     INCREMENT_CURRENT_SONG (state) {
-      state.currentSong++
+      state.currentStep = state.currentStep + 1
     },
     RESET_STEP (state) {
-      state.currentSong = 0
+      state.currentStep = 0
     }
   },
   actions: {
@@ -84,28 +93,23 @@ export default new Vuex.Store({
       return new Promise((resolve, reject) => {
         let authToken = this.getters.authToken
         axios.post(URL, { authToken, playlistId }).then(r => {
+          this.commit('INSERT_ORDER_OF_RANDOM_SONGS', getUniqueRandomIndex(r.data, r.data.length));
           this.commit('SET_TRACKS', r.data)
           resolve(r)
         }).catch(r => {
+          this.commit('INSERT_ORDER_OF_RANDOM_SONGS', [])
           this.commit('SET_TRACKS', [])
           reject(r)
         });
       })
     },
     PLAY_CURRENT_SONG({ commit }) {
-      let currentTime = getNumbersBetweenInterval(MIN_SECONDS, MAX_SECONDS);
-      this.track = new Song(audio.preview_url);
-      this.track.volume = VOLUME;
-      this.track.currentTime = currentTime;
-      this.track.play().then(() => {
-        console.log(
-          `"${audio.name}" - between ${currentTime} - ${currentTime +
-            LISTEN_LIMIT_SECONDS}!`
-        );
-        setTimeout(() => {
-          this.track.pause();
-        }, LISTEN_LIMIT_SECONDS * 1000);
-      });
+      const currentTime = getNumbersBetweenInterval(MIN_SECONDS, MAX_SECONDS);
+      
+      console.log(this.getters.getCurrentSong.track.name)
+
+      const song = new Song(this.getters.getCurrentSong.track.preview_url, currentTime);
+      return song.play()
     }
   }
 })

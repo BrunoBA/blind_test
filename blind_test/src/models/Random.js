@@ -6,7 +6,7 @@ export function getUniqueRandomIndex (tracks, LIMIT_OF_SONGS) {
   let arr = [];
 
   if (tracks.length > LIMIT_OF_SONGS) {
-    LIMIT_OF_SONGS = tracks.length
+    LIMIT_OF_SONGS = tracks.length - 1
   }
 
   while (arr.length < LIMIT_OF_SONGS) {

@@ -2,7 +2,8 @@
   <div class="container">
     <div class="row my-3">
       <div class="col-12 text-center text-white">
-        <b>{{currentStep}} / {{quantifyOfSongs}}</b>
+        <!-- <b>{{currentStep}} / {{quantifyOfSongs}}</b> -->
+        <b>1/10</b>
       </div>
     </div>
     <div class="row">
@@ -11,35 +12,35 @@
           <div
             class="progress-bar progress-bar-striped progress-bar-animated bg-success"
             role="progressbar"
-            :style="{width: `${progressBar}%`}"
+            style="width: 10%"
             aria-valuenow="25"
             aria-valuemin="0"
             aria-valuemax="100"
-          >
-            <b v-if="readyToBet">Bet</b>
-          </div>
+          ></div>
         </div>
       </div>
     </div>
     <div class="row d-flex justify-content-center">
-      <div v-for="(option, index) in currentSong.options" :key="index" class="col-8">
-        <button
-          :disabled="progressBar != 100"
-          @click="nextSong(option)"
-          class="btn btn-light btn-block mt-1 d-flex justify-content-between"
-        >
-          <i class="fa fa-music" aria-hidden="true"></i>
-          <b>{{option.title}}</b>
-          <span></span>
-        </button>
+      <template v-if="started">
+        <div v-for="(option, index) in currentSong.options" :key="index" class="col-8">
+          <button
+            :disabled="lockSongs"
+            @click="nextSong(option)"
+            class="btn btn-light btn-block mt-1 d-flex justify-content-between"
+          >
+            <i class="fa fa-music" aria-hidden="true"></i>
+            <b>{{option.title}}</b>
+            <span></span>
+          </button>
+        </div>
+      </template>
+      <div v-else class="col-8">
+        <button @click="start()" class="btn btn-success">Start</button>
       </div>
     </div>
-    <div class="row">
-      <div class="col-12">
-        <span class="text-white" v-if="timeToSelect != 0">
-          <b>Song selected in {{timeToSelect}}</b>
-        </span>
-      </div>
+    <div class="text-white">
+      {{state.currentStep}}
+      {{state.trackOrder[state.currentStep]}}
     </div>
   </div>
 </template>
@@ -51,7 +52,7 @@ import {
   getUniqueRandomIndex
 } from "../models/Random";
 
-import { 
+import {
   LISTEN_LIMIT_SECONDS,
   MIN_SECONDS,
   MAX_SECONDS,
@@ -63,107 +64,41 @@ export default {
   data() {
     return {
       timer: LISTEN_LIMIT_SECONDS,
-      timeToSelect: 0,
-      incrementTime: 0,
-      functionToDecrement: null,
-      functionToIncrement: null,
-      timerOver: false,
-      incrementTimeOver: false
+      started: false,
+      lockSongs: true
     };
   },
-  mounted() {
-    this.functionToDecrement = this.timeout();
-    this.functionToIncrement = this.incrmentTimer();
-
+  created() {
     store.commit("RESET_STEP");
-    store.dispatch("GET_TRACKS", router.currentRoute.params.id).then(res => {
-      store.commit(
-        "INSERT_ORDER_OF_RANDOM_SONGS",
-        getUniqueRandomIndex(res.data, res.data.length - 1)
-      );
-      let RANDOM_INDEX = store.state.trackOrder[store.state.currentSong];
-      this.loadAudio(store.state.tracks[RANDOM_INDEX].track);
-      store.dispatch("PLAY_CURRENT_SONG");
-    });
+    store.dispatch("GET_TRACKS", router.currentRoute.params.id);
   },
+  mounted() {},
   computed: {
-    fixedTimeout() {
-      if (this.timer > 0) return this.timer;
-      return 0;
-    },
     currentStep() {
-      return store.state.currentSong;
+      return store.state.currentStep;
     },
     currentSong() {
-      return store.state.tracks[
-        store.state.trackOrder[store.state.currentSong]
-      ];
+      return store.getters.getCurrentSong;
     },
     quantifyOfSongs() {
-      return store.state.tracks.length;
+      return store.getters.totalOfSongs;
     },
-    progressBar() {
-      let percentage = (this.incrementTime / LISTEN_LIMIT_SECONDS) * 100;
-
-      if (percentage >= 100) {
-        percentage = 100;
-      }
-      return percentage;
-    },
-    readyToBet() {
-      return this.timerOver && this.incrementTimeOver;
+    state() {
+      return store.state
     }
   },
-  created() {
-    console.clear();
-  },
   methods: {
-    loadAudio(audio) {
-      this.timer = LISTEN_LIMIT_SECONDS;
-      this.track = new Audio(audio.preview_url);
-      this.track.volume = VOLUME;
-      let currentTime = getNumbersBetweenInterval(MIN_SECONDS, MAX_SECONDS);
-      this.track.currentTime = currentTime;
-      this.track.play().then(() => {
-        console.log(
-          `"${audio.name}" - between ${currentTime} - ${currentTime +
-            LISTEN_LIMIT_SECONDS}!`
-        );
-        setTimeout(() => {
-          this.track.pause();
-        }, LISTEN_LIMIT_SECONDS * 1000);
-      });
-    },
-    timeout() {
-      return setInterval(() => {
-        this.timer = this.timer - 1;
-
-        if (this.timer < 0) {
-          this.timerOver == true;
-          clearInterval(this.functionToDecrement);
-        }
-      }, ONE_SECOND);
-    },
-    incrmentTimer() {
-      return setInterval(() => {
-        this.incrementTime = this.incrementTime + 1;
-
-        if (this.incrementTime > LISTEN_LIMIT_SECONDS) {
-          this.incrementTimeOver = true;
-          clearInterval(this.functionToIncrement);
-        }
-      }, ONE_SECOND);
+    start() {
+      this.started = true;
+      store.dispatch("PLAY_CURRENT_SONG").then(() => (this.lockSongs = false));
     },
     nextSong(option) {
-      this.incrementTime = 0;
-      this.timer = LISTEN_LIMIT_SECONDS;
-
-      this.functionToDecrement = this.timeout();
-      this.functionToIncrement = this.incrmentTimer();
-
+      this.lockSongs = true;
       store.commit("INCREMENT_CURRENT_SONG");
-      let RANDOM_INDEX = store.state.trackOrder[store.state.currentSong];
-      this.loadAudio(store.state.tracks[RANDOM_INDEX].track);
+      store.dispatch("PLAY_CURRENT_SONG").then(() => {
+        this.lockSongs = false;
+        console.log("Acabou");
+      });
     },
     takeTheTime() {
       this.timeToSelect = this.fixedTimeout;
