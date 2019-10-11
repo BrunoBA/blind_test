@@ -51,8 +51,6 @@ export default new Vuex.Store({
       state.tracks = tracks
     },
     INSERT_ORDER_OF_RANDOM_SONGS(state, trackOrder) {
-      console.log("TrackOrder: ")
-      console.log(trackOrder)
       state.trackOrder = trackOrder
     },
     INCREMENT_CURRENT_SONG (state) {
@@ -105,9 +103,6 @@ export default new Vuex.Store({
     },
     PLAY_CURRENT_SONG({ commit }) {
       const currentTime = getNumbersBetweenInterval(MIN_SECONDS, MAX_SECONDS);
-      
-      console.log(this.getters.getCurrentSong.track.name)
-
       const song = new Song(this.getters.getCurrentSong.track.preview_url, currentTime);
       return song.play()
     }
