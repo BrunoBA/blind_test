@@ -16,7 +16,7 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
-  min-height: 700px;
+  min-height: 100%;
   padding-top: 10px;
 
 }

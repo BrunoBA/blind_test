@@ -1,18 +1,21 @@
 const express = require('express')
+const dotenv = require('dotenv');
 const cors = require('cors');
+dotenv.config();
+
 const app = express()
 const moment = require('moment')
-const port = 3000
+const port = process.env.PORT
 const SpotifyWebApi = require('spotify-web-api-node');
 const axios = require('axios');
 
 // credentials are optional
-const scope = 'playlist-read-collaborative'
+const scope = process.env.SCOPE
 
 const spotifyApi = new SpotifyWebApi({
-  clientId: 'f71ed70725b347ae86cc0630a7adbf24',
-  clientSecret: '077c71e37d0a4239ac45b18cd6a60ed3',
-  redirectUri: 'http://localhost:8080/login/'
+  clientId: process.env.CLIENT_ID,
+  clientSecret: process.env.CLIENT_SECRET,
+  redirectUri: process.env.REDIRECT_URI
 });
 
 let apiCredentials = {
