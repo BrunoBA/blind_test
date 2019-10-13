@@ -10,8 +10,8 @@ import store from "./store";
 Vue.use(Router)
 
 const loginGuard = (to, from, next) => {
-  console.log(store.getters.authToken == null)
-  if (store.getters.authToken == null) {
+  console.log(store.getters.authToken == null || store.getters.authToken == "null")
+  if (store.getters.authToken == null || store.getters.authToken == "null") {
     router.push('/')
   }
   next()

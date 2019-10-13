@@ -35,7 +35,6 @@ import store from "../store";
 
 export default {
   created() {
-    console.clear()
     if (store.state.playlists.length == 0) {
       store.dispatch("GET_PLAYLISTS");
     }
