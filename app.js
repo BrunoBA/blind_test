@@ -85,7 +85,7 @@ function addOptions(CORRECTLY_ID, tracks) {
 
   while (arr.length < 4) {
     let RANDOM_KEY = getNumbersBetweenInterval(0, tracks.length - 1);
-    if (arr.indexOf(RANDOM_KEY) === -1) {
+    if (CORRECTLY_ID != RANDOM_KEY && arr.indexOf(RANDOM_KEY) === -1) {
       arr.push(RANDOM_KEY);
       let randomOption = buildObjectOptionById(tracks, RANDOM_KEY, false);
       arrayOfSongs.push(randomOption);
@@ -184,7 +184,7 @@ app.post('/tracks', (req, res, next) => {
     .then(data => {
       let tracks = data.body.items.filter(track => track.track.preview_url != null)
       tracks = tracks.map((track, index) => {
-        track.options = addOptions(index, data.body.items)
+        track.options = addOptions(index, tracks)
         return track
       })
 
@@ -193,4 +193,11 @@ app.post('/tracks', (req, res, next) => {
     .catch(error => { console.log(error) })
 })
 
-app.listen(port, () => console.log(`Example app listening on port ${port}!`))
+app.listen(port, () => console.log(`Example app listening on port ${port}! 
+
+{
+  clientId: ${process.env.CLIENT_ID},
+  clientSecret: ${process.env.CLIENT_SECRET},
+  redirectUri: ${process.env.REDIRECT_URI}
+}
+`))
