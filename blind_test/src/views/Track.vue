@@ -48,16 +48,9 @@
 <script>
 import store from "../store";
 import router from "../router";
-import {
-  getNumbersBetweenInterval,
-  getUniqueRandomIndex
-} from "../models/Random";
 
 import {
   LISTEN_LIMIT_SECONDS,
-  MIN_SECONDS,
-  MAX_SECONDS,
-  VOLUME,
   ONE_SECOND,
   TIME_TO_RELOAD
 } from "../models/Constants";

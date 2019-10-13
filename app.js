@@ -144,6 +144,13 @@ app.post('/auth', (req, res, next) => {
     spotifyApi.setRefreshToken(data.body.refresh_token)
     spotifyApi.setAccessToken(apiCredentials.token)
     res.send(apiCredentials)
+  }).catch((error) => {
+
+    res.send({
+      "token": null,
+      "refreshToken": null,
+      "expiresAt": null
+    })
   })
 })
 

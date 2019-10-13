@@ -9,11 +9,11 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
-    clientId: "f71ed70725b347ae86cc0630a7adbf24",
-    secretId: "077c71e37d0a4239ac45b18cd6a60ed3",
-    scopes: 'playlist-read-collaborative playlist-modify-private playlist-modify-public playlist-read-private user-read-private user-read-email',
+    clientId: process.env.VUE_APP_CLIENT_ID,
+    secretId: process.env.VUE_APP_CLIENT_SECRET,
+    scopes: process.env.VUE_APP_SCOPE,
     code: "",
-    redirect: "http://localhost:8080/login/",
+    redirect: process.env.VUE_APP_REDIRECT_URI,
     authToken: null,
     playlists: [],
     tracks: [],
@@ -62,7 +62,7 @@ export default new Vuex.Store({
   },
   actions: {
     GET_AUTH_TOKEN({ commit }, code) {
-      const URL = 'http://localhost:3000/auth'
+      const URL = `${process.env.VUE_APP_HOST}/auth`
 
       return new Promise((resolve, reject) => {
         axios.post(URL, { code }).then(r => {
@@ -72,7 +72,7 @@ export default new Vuex.Store({
       })
     },
     GET_PLAYLISTS({ commit }) {
-      const URL = 'http://localhost:3000/playlists'
+      const URL = `${process.env.VUE_APP_HOST}/playlists`
 
       return new Promise((resolve, reject) => {
         let authToken = this.getters.authToken
@@ -86,7 +86,7 @@ export default new Vuex.Store({
       })
     },
     GET_TRACKS({ commit }, playlistId) {
-      const URL = 'http://localhost:3000/tracks'
+      const URL = `${process.env.VUE_APP_HOST}/tracks`
 
       return new Promise((resolve, reject) => {
         let authToken = this.getters.authToken
