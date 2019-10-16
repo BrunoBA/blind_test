@@ -2,10 +2,10 @@
   <div class="container">
     <div class="row my-3">
       <div class="col-12 text-center text-white">
-        <b>{{currentStep + 1}} / {{quantifyOfSongs}}</b>
+        <b>{{currentStep}} / {{quantifyOfSongs}}</b>
       </div>
     </div>
-    <div class="row" v-if="started && (currentStep + 1 != quantifyOfSongs)">
+    <div class="row" v-if="started && (currentStep + 1 <= quantifyOfSongs)">
       <div class="col-12">
         <div class="progress my-3" style="height: 20px;">
           <div
@@ -21,7 +21,7 @@
         </div>
       </div>
     </div>
-    <div v-if="(currentStep + 1 != quantifyOfSongs)" class="row d-flex justify-content-center">
+    <div v-if="currentStep != quantifyOfSongs" class="row d-flex justify-content-center">
       <template v-if="started">
         <div v-for="(option, index) in currentSong.options" :key="index" class="col-sm-12 col-md-6">
           <button
@@ -40,7 +40,7 @@
         <button @click="start()" class="btn btn-success">Start</button>
       </div>
     </div>
-    <div class="text-white" v-else>
+    <div class="text-white" v-if="currentStep == quantifyOfSongs">
       <b>Corrects: {{corrects}} / {{quantifyOfSongs}}</b>
     </div>
   </div>
@@ -95,6 +95,9 @@ export default {
     }
   },
   methods: {
+    finishBet() {
+      return this.currentStep + 1 < this.quantifyOfSongs;
+    },
     optionClass(option) {
       if (this.showValues) {
         if (option.correct) {
@@ -133,16 +136,20 @@ export default {
       this.lockSongs = true;
       this.showValues = true;
 
-      setTimeout(() => {
-        this.showValues = false;
-        store.commit("INCREMENT_CURRENT_SONG");
-        this.counter = 0;
-        this.incrementTimer();
+      if (this.finishBet()) {
+        setTimeout(() => {
+          this.showValues = false;
+          store.commit("INCREMENT_CURRENT_SONG");
+          this.counter = 0;
+          this.incrementTimer();
 
-        store.dispatch("PLAY_CURRENT_SONG").then(() => {
-          this.unlockSongs();
-        });
-      }, TIME_TO_RELOAD);
+          store.dispatch("PLAY_CURRENT_SONG").then(() => {
+            this.unlockSongs();
+          });
+        }, TIME_TO_RELOAD);
+      } else {
+        store.commit("INCREMENT_CURRENT_SONG");
+      }
     }
   }
 };

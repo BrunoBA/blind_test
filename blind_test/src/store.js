@@ -1,6 +1,8 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import axios from "axios";
+import moment from "moment";
+
 import Song from "./models/Song";
 import { getNumbersBetweenInterval, getUniqueRandomIndex } from "./models/Random";
 import { MIN_SECONDS, MAX_SECONDS } from "./models/Constants";
@@ -29,6 +31,10 @@ export default new Vuex.Store({
     authToken: () => {
       return localStorage.getItem('authToken')
     },
+    tokenIsExpired: () => {
+      let expiresAt = localStorage.getItem('expiresAt')
+      return !moment(expiresAt).isAfter(new Date());
+    },
     getCurrentSong: state => {
       return state.tracks[state.trackOrder[state.currentStep]]
     },
@@ -40,9 +46,15 @@ export default new Vuex.Store({
     SET_AUTHORIZATION_CODE(state, code) {
       state.code = code
     },
-    SET_AUTH_TOKEN(state, authToken) {
-      localStorage.setItem('authToken', authToken)
-      state.authToken = authToken
+    SET_AUTH_TOKEN(state, auth) {
+      localStorage.setItem('authToken', auth.token)
+      localStorage.setItem('expiresAt', auth.expiresAt)
+      state.authToken = auth.token
+    },
+    CLEAR_AUTH_TOKEN(state) {
+      localStorage.removeItem('authToken')
+      localStorage.removeItem('expiresAt')
+      state.authToken = null
     },
     SET_PLAYLISTS(state, playlists) {
       state.playlists = playlists
@@ -53,10 +65,10 @@ export default new Vuex.Store({
     INSERT_ORDER_OF_RANDOM_SONGS(state, trackOrder) {
       state.trackOrder = trackOrder
     },
-    INCREMENT_CURRENT_SONG (state) {
+    INCREMENT_CURRENT_SONG(state) {
       state.currentStep = state.currentStep + 1
     },
-    RESET_STEP (state) {
+    RESET_STEP(state) {
       state.currentStep = 0
     }
   },
@@ -66,7 +78,7 @@ export default new Vuex.Store({
 
       return new Promise((resolve, reject) => {
         axios.post(URL, { code }).then(r => {
-          this.commit('SET_AUTH_TOKEN', r.data.token)
+          this.commit('SET_AUTH_TOKEN', r.data)
           resolve(r)
         }).catch(r => reject(r));
       })
@@ -105,6 +117,9 @@ export default new Vuex.Store({
       const currentTime = getNumbersBetweenInterval(MIN_SECONDS, MAX_SECONDS);
       const song = new Song(this.getters.getCurrentSong.track.preview_url, currentTime);
       return song.play()
+    },
+    LOGOUT({ commit }) {
+      commit('CLEAR_AUTH_TOKEN')
     }
   }
 })
