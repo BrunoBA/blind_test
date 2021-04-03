@@ -15,6 +15,7 @@ npm run serve
 # Nginx config
 
 ````
+#frontend
 server {
         listen 80;
         listen [::]:80;
@@ -43,6 +44,23 @@ server {
 		add_header Pragma public;
 		add_header Cache-Control "public, must-revalidate, proxy-revalidate";
 	}
+}
 
+#backend
+server {
+        listen 80;
+        listen [::]:80;
+
+        root /var/www/api.blindtestapi.com/html;
+        index index.html index.htm index.nginx-debian.html;
+
+        server_name api.blindtestapi.com www.api.blindtestapi.com;
+
+        location / {
+		#error_log /var/log/nginx/blindtestapi.com.log debug;
+                #try_files $uri $uri/ =404;
+	        proxy_pass http://localhost:3000/;
+
+        }
 }
 ````
