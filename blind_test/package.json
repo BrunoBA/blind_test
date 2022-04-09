@@ -13,7 +13,7 @@
     "core-js": "^2.6.5",
     "dotenv": "^8.1.0",
     "font-awesome": "^4.7.0",
-    "moment": "^2.24.0",
+    "moment": "^2.29.2",
     "spotify-web-api-node": "^4.0.0",
     "vue": "^2.6.10",
     "vue-router": "^3.0.3",
